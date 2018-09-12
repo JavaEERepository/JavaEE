@@ -1,0 +1,61 @@
+package servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import bean.Comment;
+import bean.User;
+import service.CommentService;
+import service.NewsService;
+import tools.Message;
+import tools.PageInformation;
+import tools.Tool;
+
+public class CommentServlet extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request,response);
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String type=request.getParameter("type");
+		String newsId=request.getParameter("newsId");
+		CommentService commentService=new CommentService();
+		
+		if("addCommnet".equals(type)){//添加评论
+			Comment comment=new Comment();
+			comment.setContent(request.getParameter("content"));
+			comment.setNewsId(Integer.parseInt(newsId));
+			User user=(User)request.getSession().getAttribute("user");
+			comment.setUserName(user.getUserName());
+			String commentId=request.getParameter("commentId");
+			
+			if(commentId==null || commentId.isEmpty())
+				commentService.addComment(comment);//对新闻的回复
+			else{
+				comment.setCommentId(Integer.parseInt(commentId));
+				commentService.addCommentToComment(comment);//对评论的回复
+			}
+			
+			String url="/servlet/NewsServlet?type=showANews&newsId="+newsId
+					+"&page=1";				
+			getServletContext().getRequestDispatcher(url).forward(request,response);			
+		}else if("praise".equals(type)){//点赞
+			String commentId=request.getParameter("commentId");
+			
+			commentService.paise(Integer.parseInt(commentId));
+			String url="/servlet/NewsServlet?type=showANews&newsId="+newsId
+					+"&page"+request.getParameter("page")
+					+"&pageSize"+request.getParameter("pageSize")
+					+"&totalPage"+request.getParameter("totalPage");
+			getServletContext().getRequestDispatcher(url).forward(request,response);
+		}
+	}
+
+}
