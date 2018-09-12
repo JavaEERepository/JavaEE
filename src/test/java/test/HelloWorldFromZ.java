@@ -9,4 +9,9 @@ public class HelloWorldFromZ {
 	public void HelloWorld2() {
 		System.out.println("HelloWorld!!!");
 	}
+	
+	public void HelloWorld3() {
+		System.out.println("HelloWorld!!!");
+	}
+	
 }
